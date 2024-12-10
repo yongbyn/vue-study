@@ -23,13 +23,18 @@ const routes = [
                         path: 'notice.do',
                         name: 'notice',
                         component: Notice,
-                        children: [
-                            {
-                                path: ':idx',
-                                name: 'noticeDetail',
-                                component: NoticeDetail,
-                            },
-                        ],
+                        // children: [
+                        //     {
+                        //         path: ':idx',
+                        //         name: 'noticeDetail',
+                        //         component: NoticeDetail,
+                        //     },
+                        // ],
+                    },
+                    {
+                        path: 'notice.do/:idx',
+                        name: 'noticeDetail',
+                        component: NoticeDetail,
                     },
                 ],
             },

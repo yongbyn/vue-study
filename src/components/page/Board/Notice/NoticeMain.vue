@@ -48,6 +48,8 @@
             </tbody>
         </table>
         <Pagination :totalItems="noticeList?.noticeCnt || 0" :itemsPerPage="5" :maxPagesShown="5" v-model="cPage" />
+        라우터가 변경이 될 때 해당 부분에 컴포넌트가 추가가 된다
+        <router-view></router-view>
     </div>
 </template>
 
@@ -106,7 +108,6 @@ const handlerDetail = (seq) => {
     router.push({
         name: 'noticeDetail',
         params: { idx: seq },
-        state: { nm: 'noticeDetail22' },
     });
 };
 
