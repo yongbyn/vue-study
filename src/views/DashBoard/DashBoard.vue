@@ -4,7 +4,7 @@
             <LeftManuBar></LeftManuBar>
         </li>
         <li class="content">
-            <keep-alive><router-view></router-view></keep-alive>
+            <router-view></router-view>
         </li>
     </ul>
 </template>

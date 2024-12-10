@@ -2,10 +2,10 @@
     <teleport to="body">
         <div class="backdrop">
             <div class="container">
-                <label> 제목 :<input type="text" v-model="noticeDetail.noti_title" /> </label>
+                <label> 제목 :<input type="text" v-model="noticeDetail.title" /> </label>
                 <label>
                     내용 :
-                    <input type="text" v-model="noticeDetail.noti_content" />
+                    <input type="text" v-model="noticeDetail.content" />
                 </label>
                 파일 :<input type="file" style="display: none" id="fileInput" @change="handlerFile" />
                 <label class="img-label" htmlFor="fileInput"> 파일 첨부하기 </label>
@@ -21,7 +21,7 @@
                 </div>
                 <div class="button-box">
                     <button @click="props.noticeSeq > 0 ? noticeUpdate() : noticeSave()">
-                        {{ props.noticeSeq > 0 ? "수정" : "저장" }}
+                        {{ props.noticeSeq > 0 ? '수정' : '저장' }}
                     </button>
                     <button v-if="props.noticeSeq > 0" @click="noticeDelete">삭제</button>
                     <button @click="modalState.setModalState">나가기</button>
@@ -32,72 +32,67 @@
 </template>
 
 <script setup>
-import { useModalStore } from "@/stores/modalState";
-import { useUserInfo } from "@/stores/userInfo";
-import axios from "axios";
+import { useModalStore } from '@/stores/modalState';
+import { useUserInfo } from '@/stores/userInfo';
+import axios from 'axios';
 
 // 부모 컴포넌트에서 전달받은 props를 사용할 수 있도록 정의한다.
-const props = defineProps(["noticeSeq"]);
-const emit = defineEmits(["modalClose", "postSuccess"]);
+const props = defineProps(['noticeSeq']);
+const emit = defineEmits(['modalClose', 'postSuccess']);
 
 const modalState = useModalStore();
 const userInfo = useUserInfo();
-const imageUrl = ref("");
-const fileData = ref("");
+const imageUrl = ref('');
+const fileData = ref('');
 
-const noticeDetail = ref(
-    new Object({
-        noti_title: "",
-        noti_content: ""
-    })
-);
+const noticeDetail = ref({});
 
 const searchDetail = () => {
     axios
-        .post("/api/board/noticeDetail.do", {
-            noticeSeq: props.noticeSeq
+        .post('/api/board/noticeDetailBody.do', {
+            noticeSeq: props.noticeSeq,
         })
         .then((res) => {
-            noticeDetail.value = res.data.detailValue;
+            noticeDetail.value = res.data.detail;
             if (
-                noticeDetail.value.file_ext === "jpg" ||
-                noticeDetail.value.file_ext === "gif" ||
-                noticeDetail.value.file_ext === "png"
+                noticeDetail.value.fileExt === 'jpg' ||
+                noticeDetail.value.fileExt === 'gif' ||
+                noticeDetail.value.fileExt === 'png'
             ) {
-                fileDownload("preview");
+                fileDownload('preview');
             }
         });
 };
 
 onMounted(() => {
-    props.noticeSeq ? searchDetail() : null;
+    props.noticeSeq && searchDetail();
 });
 
 // 자식 컴포넌트가 언마운트 됐을 때 부모 컴포넌트에서 modalClose 함수를 실행함
 onUnmounted(() => {
-    emit("modalClose");
+    emit('modalClose');
 });
 
 const noticeSave = () => {
     const textData = {
-        title: noticeDetail.value.noti_title,
-        content: noticeDetail.value.noti_content,
-        loginId: userInfo.user.loginId
+        title: noticeDetail.value.title,
+        context: noticeDetail.value.content,
+        loginId: userInfo.user.loginId,
     };
 
     const fileForm = new FormData();
-    if (fileData.value) fileForm.append("file", fileData.value);
+    if (fileData.value) fileForm.append('file', fileData.value);
     fileForm.append(
-        "text",
+        'text',
         new Blob([JSON.stringify(textData)], {
-            type: "application/json"
+            type: 'application/json',
         })
     );
 
-    axios.post("/api/board/noticeFileSaveJson.do", fileForm).then((res) => {
-        if (res.data.result === "success") {
+    axios.post('/api/board/noticeFileSaveForm.do', fileForm).then((res) => {
+        if (res.data.result === 'success') {
             modalState.setModalState();
-            emit("postSuccess");
+            emit('postSuccess');
         }
     });
 
@@ -117,24 +112,24 @@ const noticeSave = () => {
 
 const noticeUpdate = () => {
     const textData = {
-        title: noticeDetail.value.noti_title,
-        content: noticeDetail.value.noti_content,
-        noticeSeq: noticeDetail.value.noti_seq
+        title: noticeDetail.value.title,
+        content: noticeDetail.value.content,
+        noticeSeq: props.noticeSeq,
     };
 
     const fileForm = new FormData();
-    if (fileData.value) fileForm.append("file", fileData.value);
+    if (fileData.value) fileForm.append('file', fileData.value);
     fileForm.append(
-        "text",
+        'text',
         new Blob([JSON.stringify(textData)], {
-            type: "application/json"
+            type: 'application/json',
         })
     );
 
-    axios.post("/api/board/noticeFileUpdateJson.do", fileForm).then((res) => {
-        if (res.data.result === "success") {
+    axios.post('/api/board/noticeFileUpdateForm.do', fileForm).then((res) => {
+        if (res.data.result === 'success') {
             modalState.setModalState();
-            emit("postSuccess");
+            emit('postSuccess');
         }
     });
 
@@ -154,13 +149,13 @@ const noticeUpdate = () => {
 
 const noticeDelete = () => {
     axios
-        .post("/api/board/noticeDelete.do", {
-            noticeSeq: noticeDetail.value.noti_seq
+        .post('/api/board/noticeDeleteBody.do', {
+            noticeSeq: props.noticeSeq,
         })
         .then((res) => {
-            if (res.data.result === "success") {
+            if (res.data.result === 'success') {
                 modalState.setModalState();
-                emit("postSuccess");
+                emit('postSuccess');
             }
         });
 };
@@ -168,9 +163,9 @@ const noticeDelete = () => {
 const handlerFile = (e) => {
     const fileInfo = e.target.files; // FileList {0: File, length: 1}
 
-    const fileInfoSplit = fileInfo[0].name.split(".");
+    const fileInfoSplit = fileInfo[0].name.split('.');
     const fileExtension = fileInfoSplit[1].toLowerCase();
-    if (fileExtension === "jpg" || fileExtension === "gif" || fileExtension === "png") {
+    if (fileExtension === 'jpg' || fileExtension === 'gif' || fileExtension === 'png') {
         imageUrl.value = URL.createObjectURL(fileInfo[0]); // blob 형태로 이미지 url 생성
     }
     fileData.value = fileInfo[0];
@@ -179,23 +174,23 @@ const handlerFile = (e) => {
 // 파일 미리보기
 const fileDownload = async (flag) => {
     let param = new URLSearchParams();
-    param.append("noticeSeq", noticeDetail.value.noti_seq);
+    param.append('noticeSeq', props.noticeSeq);
 
     const postAction = {
-        url: "/api/board/noticeDownload.do",
-        method: "POST",
+        url: '/api/board/noticeDownload.do',
+        method: 'POST',
         data: param,
-        responseType: "blob"
+        responseType: 'blob',
     };
 
     await axios(postAction).then((res) => {
         const url = window.URL.createObjectURL(new Blob([res.data]));
-        if (flag === "preview") {
+        if (flag === 'preview') {
             imageUrl.value = url;
         } else {
-            const link = document.createElement("a");
+            const link = document.createElement('a');
             link.href = url;
-            link.setAttribute("download", noticeDetail.value.file_name);
+            link.setAttribute('download', noticeDetail.value.file_name);
             document.body.appendChild(link);
             link.click();
 
@@ -226,7 +221,7 @@ label {
     flex-direction: column;
 }
 
-input[type="text"] {
+input[type='text'] {
     padding: 8px;
     margin-top: 5px;
     margin-bottom: 5px;

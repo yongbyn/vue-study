@@ -11,12 +11,36 @@
 </template>
 <!-- setup을 적어야 Composition API를 사용할 수 있다.  -->
 <script setup>
+import router from '@/router';
 import { useModalStore } from '@/stores/modalState';
 
 const keyword = ref('');
 const searchStDate = ref('');
 const searchEdDate = ref('');
 const modalState = useModalStore();
+
+const handlerSearch = () => {
+    // 1. url 파라미터 생성
+    const query = [];
+    !keyword.value || query.push(`searchTitle=${keyword.value}`);
+    !searchStDate.value || query.push(`searchStDate=${searchStDate.value}`);
+    !searchEdDate.value || query.push(`searchEdDate=${searchEdDate.value}`);
+    const queryString = query.length > 0 ? `?${query.join('&')}` : '';
+
+    // 2. 라우터에 파라미터 push
+    router.push(queryString);
+};
+
+// v-model.lazy를 확인 해보자
+watch(keyword, () => {
+    console.log(keyword.value);
+});
+
+// 해당 함수 안에는 반응형 데이터가 없음
+watchEffect(() => window.location.search && router.push(window.location.pathname, { replace: true }));
+// watch(() => router, window.location.search && router.push(window.location.pathname, { replace: true }));
+// watchEffect(() => router, console.log('watchEffect', window.location.search, window.location.pathname));
+// watch(() => router, console.log('watch', window.location.search, window.location.pathname));
 </script>
 
 <style lang="scss" scoped>
