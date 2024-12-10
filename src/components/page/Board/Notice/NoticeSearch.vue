@@ -1,9 +1,9 @@
 <template>
     <div class="search-box">
         <!-- v-model을 이용하여 양방향 바인딩을 쉽게 할 수 있다. -->
-        <input v-model.lazy="keyword" />
-        <input type="date" v-model="searchStDate" />
-        <input type="date" v-model="searchEdDate" />
+        <input v-model.lazy="searchKey.searchTitle" />
+        <input type="date" v-model="searchKey.searchStDate" />
+        <input type="date" v-model="searchKey.searchEdDate" />
         <!-- v-on:click="" 또는 @click=""으로 이벤트를 설정한다. -->
         <button @click="handlerSearch">검색</button>
         <button @click="modalState.setModalState">신규등록</button>
@@ -13,10 +13,13 @@
 <script setup>
 import { useModalStore } from '@/stores/modalState';
 
-const keyword = ref('');
-const searchStDate = ref('');
-const searchEdDate = ref('');
 const modalState = useModalStore();
+const searchKey = ref({});
+const injectedValue = inject('providedValue');
+
+const handlerSearch = () => {
+    injectedValue.value = { ...searchKey.value };
+};
 </script>
 
 <style lang="scss" scoped>

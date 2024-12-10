@@ -24,8 +24,9 @@
                 </tr>
             </thead>
             <tbody>
-                <template v-if="noticeList">
-                    <template v-if="noticeList.noticeCnt > 0">
+                <template v-if="isLoading"> 로딩 중... </template>
+                <template v-else="!isLoading">
+                    <template v-if="noticeList?.noticeCnt > 0">
                         <!-- v-bind:key="" 또는 :key=""를 사용하여 속성의 속성값을 바꿀 수 있다. (v-bind:속성="값" 또는 :속성="값") -->
                         <tr
                             v-for="notice in noticeList.notice"
@@ -46,13 +47,7 @@
                 </template>
             </tbody>
         </table>
-        <Pagination
-            :totalItems="noticeList?.noticeCnt || 0"
-            :itemsPerPage="5"
-            :maxPagesShown="5"
-            :onClick="searchList"
-            v-model="cPage"
-        />
+        <Pagination :totalItems="noticeList?.noticeCnt || 0" :itemsPerPage="5" :maxPagesShown="5" v-model="cPage" />
     </div>
 </template>
 
@@ -61,39 +56,63 @@ import Pagination from '@/components/common/Pagination.vue';
 import axios from 'axios';
 import NoticeModal from './FirstNoticeModal.vue';
 import { useModalStore } from '@/stores/modalState';
+import { useQuery } from '@tanstack/vue-query';
+import { useNoticeList } from '../../../../hook/notice/useNoticeList';
+import { useRouter } from 'vue-router';
 
-const route = useRoute();
-const noticeList = ref();
+const router = useRouter();
+// const noticeList = ref();
 const cPage = ref(1);
 const modalState = useModalStore();
 const noticeSeq = ref(0);
+const injectedValue = inject('providedValue');
 
-const searchList = () => {
-    let param = new URLSearchParams({
-        currentPage: cPage.value,
-        pageSize: 5,
-        searchTitle: route.query.searchTitle || '',
-        searchStDate: route.query.searchStDate || '',
-        searchEdDate: route.query.searchEdDate || '',
-    });
+const { data: noticeList, isLoading } = useNoticeList(injectedValue, cPage);
 
-    axios.post('/api/board/noticeListJson.do', param).then((res) => {
-        noticeList.value = res.data;
-    });
-};
+// const searchList = () => {
+//     const param = new URLSearchParams({
+//         currentPage: cPage.value,
+//         pageSize: 5,
+//         ...injectedValue.value,
+//     });
+
+//     axios.post('/api/board/noticeListJson.do', param).then((res) => {
+//         noticeList.value = res.data;
+//     });
+// };
+
+// const searchList = async () => {
+//     const param = new URLSearchParams({
+//         currentPage: cPage.value,
+//         pageSize: 5,
+//         ...injectedValue.value,
+//     });
+//     const result = await axios.post('/api/board/noticeListJson.do', param);
+
+//     return result.data;
+// };
+
+// const {
+//     data: noticeList,
+//     isLoading,
+//     refetch,
+//     isStale,
+// } = useQuery({
+//     queryKey: ['noticeList', injectedValue],
+//     queryFn: searchList,
+// });
 
 const handlerDetail = (seq) => {
-    console.log(seq);
-    noticeSeq.value = seq;
-    modalState.setModalState();
+    router.push({
+        name: 'noticeDetail',
+        params: { idx: seq },
+        state: { nm: 'noticeDetail22' },
+    });
 };
 
-// route 값이 변경되면 searchList가 실행된다.
-watch(route, searchList);
-
-onMounted(() => {
-    searchList();
-});
+// 최초 한번에 실행되고 변경되면 또 바뀜
+// provide/inject에 반응형데이터(ref)가 담겨 있기 때문에, 해당 데이터가 변경되면 searchList가 실행됨
+// watchEffect(searchList);
 </script>
 
 <style lang="scss" scoped>
