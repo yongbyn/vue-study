@@ -6,6 +6,7 @@ import router from './router';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import VueAwesomePaginate from 'vue-awesome-paginate';
+import { useModalStore } from './stores/modalState';
 
 const app = createApp(App);
 const pinia = createPinia();

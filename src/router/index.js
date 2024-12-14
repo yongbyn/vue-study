@@ -23,17 +23,24 @@ const routes = [
                         path: 'notice.do',
                         name: 'notice',
                         component: Notice,
-                        // children: [
-                        //     {
-                        //         path: ':idx',
-                        //         name: 'noticeDetail',
-                        //         component: NoticeDetail,
-                        //     },
-                        // ],
+                        children: [
+                            {
+                                // 중첩라우터 <router-view>를 통해 NoticeDetail이 랜더링, 부모 자식 관계가 생김
+                                path: ':idx',
+                                name: 'noticeDetail',
+                                component: NoticeDetail,
+                            },
+                        ],
                     },
                     {
+                        // 단일 라우터 컴포넌트 간의 부모 자식 관계가 없음, 해당 경로로 새로운 컴포넌트가 열림
                         path: 'notice.do/:idx',
                         name: 'noticeDetail',
+                        component: NoticeDetail,
+                    },
+                    {
+                        path: 'notice.do/insert',
+                        name: 'noticeInsertForm',
                         component: NoticeDetail,
                     },
                 ],

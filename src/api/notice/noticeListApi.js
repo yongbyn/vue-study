@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 export const noticeListApi = async (injectedValue, cPage) => {
-    console.log('api', injectedValue, cPage);
     const param = new URLSearchParams({
         currentPage: cPage,
         pageSize: 5,

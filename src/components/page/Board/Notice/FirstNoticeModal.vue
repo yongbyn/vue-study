@@ -76,7 +76,7 @@ onUnmounted(() => {
 const noticeSave = () => {
     const textData = {
         title: noticeDetail.value.title,
-        context: noticeDetail.value.content,
+        content: noticeDetail.value.content,
         loginId: userInfo.user.loginId,
     };
 

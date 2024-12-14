@@ -6,16 +6,17 @@
         <input type="date" v-model="searchKey.searchEdDate" />
         <!-- v-on:click="" 또는 @click=""으로 이벤트를 설정한다. -->
         <button @click="handlerSearch">검색</button>
-        <button @click="modalState.setModalState">신규등록</button>
+        <button @click="() => router.push('notice.do/insert')">신규등록</button>
     </div>
 </template>
 <!-- setup을 적어야 Composition API를 사용할 수 있다.  -->
 <script setup>
 import { useModalStore } from '@/stores/modalState';
+import { useRouter } from 'vue-router';
 
-const modalState = useModalStore();
 const searchKey = ref({});
 const injectedValue = inject('providedValue');
+const router = useRouter();
 
 const handlerSearch = () => {
     injectedValue.value = { ...searchKey.value };

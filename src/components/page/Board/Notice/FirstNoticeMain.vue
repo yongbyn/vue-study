@@ -58,7 +58,6 @@
 
 <script setup>
 import Pagination from '@/components/common/Pagination.vue';
-import axios from 'axios';
 import NoticeModal from './FirstNoticeModal.vue';
 import { useModalStore } from '@/stores/modalState';
 
