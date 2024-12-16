@@ -19,9 +19,8 @@ const searchEndDate = ref("");
 const handlerSearch = () => {
   const query = [];
   !keyword.value || query.push(`searchTitle=${keyword.value}`);
-  !searchStartDate.value ||
-    query.push(`searchStartDate=${searchStartDate.value}`);
-  !searchEndDate.value || query.push(`searchSEndDate=${searchEndDate.value}`);
+  !searchStartDate.value || query.push(`searchStDate=${searchStartDate.value}`);
+  !searchEndDate.value || query.push(`searchSEdDate=${searchEndDate.value}`);
 
   const queryString = query.length > 0 ? `?${query.join("&")}` : "";
 
