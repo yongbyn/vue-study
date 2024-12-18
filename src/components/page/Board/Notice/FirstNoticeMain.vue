@@ -1,5 +1,11 @@
 <template>
   <div class="divNoticeList">
+    <NoticeModal
+      v-if="modalState.modalState"
+      @postSuccess="searchList"
+      @modalClose="() => (noticeIdx = 0)"
+      :idx="noticeIdx"
+    />
     현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt }}
     <table>
       <colgroup>
@@ -18,13 +24,12 @@
         </tr>
       </thead>
       <tbody>
-        <template v-if="isLoading">로딩중...</template>
-        <template v-else-if="isSuccess">
+        <template v-if="noticeList">
           <template v-if="noticeList.noticeCnt > 0">
             <tr
               v-for="notice in noticeList.notice"
               :key="notice.noticeIdx"
-              @click="handlerDetail(notice.noticeIdx)"
+              @click="handlerModal(notice.noticeIdx)"
             >
               <td>{{ notice.noticeIdx }}</td>
               <td>{{ notice.title }}</td>
@@ -38,41 +43,55 @@
             </tr>
           </template>
         </template>
-        <template v-else-if="isError">에러발생</template>
       </tbody>
     </table>
     <Pagination
       :totalItems="noticeList?.noticeCnt || 0"
       :items-per-page="5"
       :max-pages-shown="5"
+      :onClick="searchList"
       v-model="cPage"
     />
   </div>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
+import axios from "axios";
+import { useRoute } from "vue-router";
 import Pagination from "../../../common/Pagination.vue";
-import { useNoticeListSearchQuery } from "../../../../hook/notice/useNoticeListSearchQuery";
+import { useModalStore } from "../../../../stores/modalState";
 
-const router = useRouter();
+const route = useRoute();
+const noticeList = ref();
 const cPage = ref(1);
-const injectedValue = inject("providedValue");
+const modalState = useModalStore();
+const noticeIdx = ref(0);
 
-const {
-  data: noticeList,
-  isLoading,
-  refetch,
-  isSuccess,
-  isError,
-} = useNoticeListSearchQuery(injectedValue, cPage);
-
-const handlerDetail = (idx) => {
-  router.push({
-    name: "noticeDetail",
-    params: { idx },
+const searchList = () => {
+  const param = new URLSearchParams({
+    searchTitle: route.query.searchTitle || "",
+    searchStDate: route.query.searchStDate || "",
+    searchEdDate: route.query.searchEdDate || "",
+    currentPage: cPage.value,
+    pageSize: 5,
+  });
+  axios.post("/api/board/noticeListJson.do", param).then((res) => {
+    noticeList.value = res.data;
   });
 };
+
+const handlerModal = (idx) => {
+  noticeIdx.value = idx;
+  modalState.setModalState();
+};
+
+watch(route, searchList);
+// watch(modalState, searchList); // emit 대신 이거 해도 됐었음 (용빈)
+
+// 화면이 초기에 열렸을 때 실행
+onMounted(() => {
+  searchList();
+});
 </script>
 
 <style lang="scss" scoped>
